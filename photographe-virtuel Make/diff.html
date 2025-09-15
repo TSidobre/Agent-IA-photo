@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Générateur d'images - Mon Chasseur Immo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f6f8fa;
+      color: #333;
+      padding: 40px 20px;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h1 {
+      text-align: center;
+      color: #003366;
+    }
+
+    form {
+      background-color: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 6px;
+      color: #222;
+    }
+
+    select,
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-size: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 12px;
+      width: 100%;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    #result {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    #result img {
+      max-width: 100%;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+
+    #result a {
+      display: inline-block;
+      margin-top: 10px;
+      color: #0077cc;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    #result a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>Agent IA – Générateur d'images</h1>
+
+  <form id="imageForm">
+    <label for="categorie">Catégorie d’image :</label>
+    <select id="categorie" name="categorie" required>
+      <option value="">-- Choisir une catégorie --</option>
+      <option value="interieur">🏠 Intérieur</option>
+      <option value="humain">👤 Humain</option>
+      <option value="autre">✨ Autre</option>
+    </select>
+
+    <label for="description">Description de l’image :</label>
+    <input type="text" id="description" name="description" placeholder="Ex. Un salon lumineux avec parquet clair" required />
+
+    <label for="format">Format souhaité :</label>
+    <select id="format" name="format">
+      <option value="1:1">Carré (1:1)</option>
+      <option value="9:16">Vertical (9:16)</option>
+      <option value="16:9">Horizontal (16:9)</option>
+    </select>
+
+    <label for="cible">Cible ou contexte :</label>
+    <input type="text" id="cible" name="cible" placeholder="Ex. Publication Instagram, plaquette, etc." />
+
+    <button type="submit">🚀 Générer l’image</button>
+  </form>
+
+  <div id="result"></div>
+
+  <script>
+    document.getElementById("imageForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+
+      const resultContainer = document.getElementById("result");
+      resultContainer.innerHTML = "⏳ Génération en cours...";
+
+      const webhookUrl = "https://hook.eu1.make.com/4g83ofxhrb50jijxk9xurp7ffogba87m"; // remplace avec ton vrai webhook unique
+
+      try {
+        const response = await fetch(webhookUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+        resultContainer.innerHTML = "";
+
+        if (result.images && result.images.length > 0) {
+          result.images.forEach((url, index) => {
+            const container = document.createElement("div");
+
+            const img = document.createElement("img");
+            img.src = url;
+            img.alt = "Image générée";
+
+            const link = document.createElement("a");
+            link.href = result.downloadUrls?.[index] || url;
+            link.innerText = "📥 Télécharger l’image";
+            link.download = "image-generée.jpg";
+
+            container.appendChild(img);
+            container.appendChild(link);
+            resultContainer.appendChild(container);
+          });
+        } else {
+          resultContainer.innerText = " ";
+        }
+
+      } catch (error) {
+        resultContainer.innerHTML = " ";
+        console.error(error);
+      }
+    });
+  </script>
+</body>
+</html>
